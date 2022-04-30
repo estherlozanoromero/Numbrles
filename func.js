@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-  createSquares();
+  /*createSquares();*/
   let guessedWords = [[]];
   let availableSpace = 1;
-
+  let po = 1;
   let num;
   let maxSol;
   let word;
@@ -13,8 +13,47 @@ document.addEventListener("DOMContentLoaded", () => {
   const keys_1 = document.querySelectorAll(".number-row button");
   const keys_2 = document.querySelectorAll("op-row button");
 
+/*window.onload = init;
+function init(){
+    document.querySelector(".start").addEventListener("click",cronometrar);
+    document.querySelector(".stop").addEventListener("click",parar);
+    document.querySelector(".reiniciar").addEventListener("click",reiniciar);
+    h = 0;
+    m = 0;
+    s = 0;
+    document.getElementById("hms").innerHTML="00:00:00";
+}         
+function cronometrar(){
+    escribir();
+    id = setInterval(escribir,1000);
+    document.querySelector(".start").removeEventListener("click",cronometrar);
+}
+function escribir(){
+    var hAux, mAux, sAux;
+    s++;
+    if (s>59){m++;s=0;}
+    if (m>59){h++;m=0;}
+    if (h>24){h=0;}
 
+    if (s<10){sAux="0"+s;}else{sAux=s;}
+    if (m<10){mAux="0"+m;}else{mAux=m;}
+    if (h<10){hAux="0"+h;}else{hAux=h;}
 
+    document.getElementById("hms").innerHTML = hAux + ":" + mAux + ":" + sAux; 
+}
+function parar(){
+    clearInterval(id);
+    document.querySelector(".start").addEventListener("click",cronometrar);
+
+}
+function reiniciar(){
+    clearInterval(id);
+    document.getElementById("hms").innerHTML="00:00:00";
+    h=0;m=0;s=0;
+    document.querySelector(".start").addEventListener("click",cronometrar);
+}
+
+*/
   function getCurrentWordArr() {
     const numberOfGuessedWords = guessedWords.length;
     return guessedWords[numberOfGuessedWords - 1];
@@ -104,8 +143,15 @@ document.addEventListener("DOMContentLoaded", () => {
         set.add(new_sol);
         window.alert("Congratulations! "+guessedCount+"/"+maxSol);
         let sol = document.getElementById("solutions-found");
+        
+        if (po == 1){
+          po = 0;
+        }
+        else {
+          sol.textContent += " · ";
+        }
         sol.textContent += currentWordArr.join('');
-        sol.textContent += "  ";
+        
       }
 
     } else {
@@ -116,8 +162,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function clear_solution() {
+    let sol = document.getElementById("solutions-found");
+    sol.textContent = " ";
+
+  }
+
 
   function get_new_game() {
+    //init();
+    clear_solution();
+    po = 1;
+    
     let nums= [0];
     console.log("Comienza programa");
 
@@ -181,22 +237,23 @@ document.addEventListener("DOMContentLoaded", () => {
       guessedCount = 0;
       r.textContent = num;
       set.clear();
+      
   }
 
   function createSquares() {
     const gameBoard = document.getElementById("board");
-    for (let index = 0; index < 5; index += 2) {
+    for (let index = 0; index < 5; index += 1) {
       let square = document.createElement("div");
       square.classList.add("square");
       square.setAttribute("id", index + 1);
       gameBoard.appendChild(square);
 
-      if (index != 4) {
+     /* if (index != 4) {
         let square = document.createElement("div");
         square.classList.add("small-square");
         square.setAttribute("id", index + 2);
         gameBoard.appendChild(square);
-      }
+      }*/
     }
   }
 
