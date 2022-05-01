@@ -156,7 +156,7 @@ function reiniciar(){
       }
 
     } else {
-      window.alert("Not "+ num + "! " +result);
+      window.alert("It isn't the goal " + num + "! Your result is " + result + ". You have to practice more!");
     }
     for (let i = 1; i < 6; ++i) {
       handleDeleteLetter();
@@ -240,6 +240,10 @@ function reiniciar(){
       let score = document.getElementById("score");
       score.textContent = guessedCount+"/"+maxSol;
       set.clear();
+      for(let i = 0; i < 5; i++) {
+        handleDeleteLetter();
+
+      }
       
   }
 
@@ -262,14 +266,13 @@ function reiniciar(){
 
   function handleDeleteLetter() {
     const currentWordArr = getCurrentWordArr();
-    const removedLetter = currentWordArr.pop();
-
-    guessedWords[guessedWords.length - 1] = currentWordArr;
-
-    const lastLetterEl = document.getElementById(String(availableSpace - 1));
-
-    lastLetterEl.textContent = "";
-    availableSpace = availableSpace - 1;
+    if (availableSpace>1) {
+      const lastLetterEl = document.getElementById(String(availableSpace - 1));
+      currentWordArr.pop();
+      guessedWords[guessedWords.length - 1] = currentWordArr;
+      lastLetterEl.textContent = "";
+      availableSpace = availableSpace - 1;
+    }
   }
 
   for (let i = 0; i < keys_1.length; i++) {
@@ -295,4 +298,8 @@ function reiniciar(){
       updateGuessedWords(letter);
     };
   }
+
+  let he = document.getElementById("hel");
+  he.onclick = ({ target }) => window.alert("Combine the numbers with sums and rests in order to achieve the goal. Any possibility is allowed: you can use one, two or three numbers.  Explore mental calculus and find all the permutations!");
+  
 });
