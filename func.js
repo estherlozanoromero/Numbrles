@@ -295,6 +295,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   let he = document.getElementById("hel");
-  he.onclick = ({ target }) => window.alert("Combine the numbers with sums and rests in order to achieve the goal. Any possibility is allowed: you can use one, two or three numbers.  Explore mental calculus and find all the permutations!");
+  he.onclick = ({ target }) => window.alert("Combine the numbers with adds and substracts in order to achieve the goal. Any possibility is allowed: you can use one, two or three numbers.  Explore mental calculus and find all the permutations!");
   
 });
