@@ -141,9 +141,10 @@ function reiniciar(){
       else {
         ++guessedCount;
         set.add(new_sol);
-        window.alert("Congratulations! "+guessedCount+"/"+maxSol);
+        if (guessedCount==maxSol)window.alert("Congratulations! "+guessedCount+"/"+maxSol);
+        let score = document.getElementById("score");
+        score.textContent = guessedCount+"/"+maxSol;
         let sol = document.getElementById("solutions-found");
-        
         if (po == 1){
           po = 0;
         }
@@ -236,6 +237,8 @@ function reiniciar(){
       maxSol = max;
       guessedCount = 0;
       r.textContent = num;
+      let score = document.getElementById("score");
+      score.textContent = guessedCount+"/"+maxSol;
       set.clear();
       
   }
