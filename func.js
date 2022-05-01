@@ -1,92 +1,91 @@
 document.addEventListener("DOMContentLoaded", () => {
-  /*createSquares();*/
-  let guessedWords = [[]];
+  let guessedNumbers = [[]];
   let availableSpace = 1;
   let po = 1;
   let num;
   let maxSol;
-  let word;
+  let Number;
   let guessedCount = 0;
   const set = new Set();
   get_new_game();
 
+  //TIMER
+
+  var tim = document.getElementById('hms');
+  var sec = 0;
+  var min = 0;
+  var hrs = 0;
+  var t;
+
+  function tick(){
+      sec++;
+      if (sec >= 60) {
+          sec = 0;
+          min++;
+          if (min >= 60) {
+              min = 0;
+              hrs++;
+          }
+      }
+  }
+  function add() {
+      tick();
+      tim.textContent = (hrs > 9 ? hrs : "0" + hrs) + ":" + (min > 9 ? min : "0" + min) + ":" + (sec > 9 ? sec : "0" + sec);
+      timer();
+  }
+
+  function timer() {
+      t = setTimeout(add, 1000);
+  }
+  function stop() {
+      clearTimeout(t);
+  }
+  
+  function reset() {
+    tim.textContent = "00:00:00";
+    sec = 0; min = 0; hrs = 0;
+    clearTimeout(t);
+  }
+
+//////////////////////////////////////////////
+
   const keys_1 = document.querySelectorAll(".number-row button");
   const keys_2 = document.querySelectorAll("op-row button");
 
-/*window.onload = init;
-function init(){
-    document.querySelector(".start").addEventListener("click",cronometrar);
-    document.querySelector(".stop").addEventListener("click",parar);
-    document.querySelector(".reiniciar").addEventListener("click",reiniciar);
-    h = 0;
-    m = 0;
-    s = 0;
-    document.getElementById("hms").innerHTML="00:00:00";
-}         
-function cronometrar(){
-    escribir();
-    id = setInterval(escribir,1000);
-    document.querySelector(".start").removeEventListener("click",cronometrar);
-}
-function escribir(){
-    var hAux, mAux, sAux;
-    s++;
-    if (s>59){m++;s=0;}
-    if (m>59){h++;m=0;}
-    if (h>24){h=0;}
 
-    if (s<10){sAux="0"+s;}else{sAux=s;}
-    if (m<10){mAux="0"+m;}else{mAux=m;}
-    if (h<10){hAux="0"+h;}else{hAux=h;}
-
-    document.getElementById("hms").innerHTML = hAux + ":" + mAux + ":" + sAux; 
-}
-function parar(){
-    clearInterval(id);
-    document.querySelector(".start").addEventListener("click",cronometrar);
-
-}
-function reiniciar(){
-    clearInterval(id);
-    document.getElementById("hms").innerHTML="00:00:00";
-    h=0;m=0;s=0;
-    document.querySelector(".start").addEventListener("click",cronometrar);
-}
-
-*/
-  function getCurrentWordArr() {
-    const numberOfGuessedWords = guessedWords.length;
-    return guessedWords[numberOfGuessedWords - 1];
+  function getCurrentNumberArr() {
+    const numberOfGuessedNumbers = guessedNumbers.length;
+    return guessedNumbers[numberOfGuessedNumbers - 1];
   }
 
-  function updateGuessedWords(letter) {
-    const currentWordArr = getCurrentWordArr();
+  function updateGuessedNumbers(Number) {
+    const currentNumberArr = getCurrentNumberArr();
 
-    if (currentWordArr && currentWordArr.length < 5) {
-      if (currentWordArr.length % 2 == 0 && letter != "+" && letter != "-") {
-        currentWordArr.push(letter);
+    if (currentNumberArr && currentNumberArr.length < 5) {
+      if (currentNumberArr.length % 2 == 0 && Number != "+" && Number != "-") {
+        currentNumberArr.push(Number);
         const availableSpaceEl = document.getElementById(String(availableSpace));
         availableSpace = availableSpace + 1;
-        availableSpaceEl.textContent = letter;
+        availableSpaceEl.textContent = Number;
       }
-      else if (currentWordArr.length % 2 == 1 && (letter == "+" || letter == "-")) {
-        currentWordArr.push(letter);
+      else if (currentNumberArr.length % 2 == 1 && (Number == "+" || Number == "-")) {
+        currentNumberArr.push(Number);
         const availableSpaceEl = document.getElementById(String(availableSpace));
         availableSpace = availableSpace + 1;
-        availableSpaceEl.textContent = letter;
+        availableSpaceEl.textContent = Number;
       }
     }
   }
 
-  function getTileColor(letter, index) {
-    const isCorrectLetter = word.includes(letter);
+  function getTileColor(Number, index) {
+    const isCorrectNumber = Number.includes(Number);
 
-    if (!isCorrectLetter) {
+    if (!isCorrectNumber) {
       return "rgb(58, 58, 60)";
     }
 
-    const letterInThatPosition = word.charAt(index);
-    const isCorrectPosition = letter === letterInThatPosition;
+    const NumberInThatPosition = Number.charAt(index);
+    const isCorrectPosition = Number === NumberInThatPosition;
 
     if (isCorrectPosition) {
       return "rgb(83, 141, 78)";
@@ -95,32 +94,32 @@ function reiniciar(){
     return "rgb(181, 159, 59)";
   }
 
-  function handleSubmitWord() {
-    const currentWordArr = getCurrentWordArr();
+  function handleSubmitNumber() {
+    const currentNumberArr = getCurrentNumberArr();
 
-    result = parseInt(currentWordArr[0]);
-    for (i = 1; i < currentWordArr.length; ++i) {
-        if (currentWordArr[i] == "+") {
-            result += parseInt(currentWordArr[i+1]);
+    result = parseInt(currentNumberArr[0]);
+    for (i = 1; i < currentNumberArr.length; ++i) {
+        if (currentNumberArr[i] == "+") {
+            result += parseInt(currentNumberArr[i+1]);
             ++i;
         }
-        else if (currentWordArr[i] == "-") {
-          result -= parseInt(currentWordArr[i+1]);
+        else if (currentNumberArr[i] == "-") {
+          result -= parseInt(currentNumberArr[i+1]);
           ++i;
         }
     }
 
     let vec = new Array(3).fill(0);
     if (result === num) {
-      vec[0] = parseInt(currentWordArr[0]);
+      vec[0] = parseInt(currentNumberArr[0]);
       let j = 1;
-      for (let i = 1; i < currentWordArr.length; ++i) {
-        if (currentWordArr[i] == "+") {
-          vec[j] = parseInt(currentWordArr[i+1]);
+      for (let i = 1; i < currentNumberArr.length; ++i) {
+        if (currentNumberArr[i] == "+") {
+          vec[j] = parseInt(currentNumberArr[i+1]);
           ++i;
         }
-        else if (currentWordArr[i] == "-") {
-          vec[j] = -parseInt(currentWordArr[i+1]);
+        else if (currentNumberArr[i] == "-") {
+          vec[j] = -parseInt(currentNumberArr[i+1]);
           ++i;
         }
         ++j;
@@ -141,7 +140,11 @@ function reiniciar(){
       else {
         ++guessedCount;
         set.add(new_sol);
-        if (guessedCount==maxSol)window.alert("Congratulations! "+guessedCount+"/"+maxSol);
+        if (guessedCount==maxSol){
+          window.alert("Congratulations! You finished in " + tim.textContent);
+          reset();
+          get_new_game();
+        }
         let score = document.getElementById("score");
         score.textContent = guessedCount+"/"+maxSol;
         let sol = document.getElementById("solutions-found");
@@ -151,7 +154,7 @@ function reiniciar(){
         else {
           sol.textContent += " · ";
         }
-        sol.textContent += currentWordArr.join('');
+        sol.textContent += currentNumberArr.join('');
         
       }
 
@@ -159,7 +162,7 @@ function reiniciar(){
       window.alert("It isn't the goal " + num + "! Your result is " + result + ". You have to practice more!");
     }
     for (let i = 1; i < 6; ++i) {
-      handleDeleteLetter();
+      handleDeleteNumber();
     }
   }
 
@@ -171,12 +174,11 @@ function reiniciar(){
 
 
   function get_new_game() {
-    //init();
+    timer();
     clear_solution();
     po = 1;
     
     let nums= [0];
-    console.log("Comienza programa");
 
     for (let i = 1; i < 10; ++i) {
         nums[i]=Math.floor(Math.random()*25) + 1;
@@ -188,10 +190,8 @@ function reiniciar(){
             } else ++j;
         }
     }
-    console.log("Creo array");
     let sols = new Array(50).fill(0);
     let sols_sum = new Array(50).fill(0);
-    console.log("Entro for");
 
     for (let i = 0; i < 10; ++i) {
         for (let j = i; j < 19; ++j) {
@@ -241,7 +241,7 @@ function reiniciar(){
       score.textContent = guessedCount+"/"+maxSol;
       set.clear();
       for(let i = 0; i < 5; i++) {
-        handleDeleteLetter();
+        handleDeleteNumber();
 
       }
       
@@ -254,23 +254,16 @@ function reiniciar(){
       square.classList.add("square");
       square.setAttribute("id", index + 1);
       gameBoard.appendChild(square);
-
-     /* if (index != 4) {
-        let square = document.createElement("div");
-        square.classList.add("small-square");
-        square.setAttribute("id", index + 2);
-        gameBoard.appendChild(square);
-      }*/
     }
   }
 
-  function handleDeleteLetter() {
-    const currentWordArr = getCurrentWordArr();
+  function handleDeleteNumber() {
+    const currentNumberArr = getCurrentNumberArr();
     if (availableSpace>1) {
-      const lastLetterEl = document.getElementById(String(availableSpace - 1));
-      currentWordArr.pop();
-      guessedWords[guessedWords.length - 1] = currentWordArr;
-      lastLetterEl.textContent = "";
+      const lastNumberEl = document.getElementById(String(availableSpace - 1));
+      currentNumberArr.pop();
+      guessedNumbers[guessedNumbers.length - 1] = currentNumberArr;
+      lastNumberEl.textContent = "";
       availableSpace = availableSpace - 1;
     }
   }
@@ -278,24 +271,26 @@ function reiniciar(){
   for (let i = 0; i < keys_1.length; i++) {
     keys_1[i].onclick = ({ target }) => {
 
-      const letter = target.getAttribute("data-key");
+      const Number = target.getAttribute("data-key");
       
-      if (letter === "enter") {
-        handleSubmitWord();
+      if (Number === "enter") {
+        handleSubmitNumber();
         return;
       }
 
-      if (letter === "del") {
-        handleDeleteLetter();
+      if (Number === "del") {
+        handleDeleteNumber();
         return;
       }
 
-      if (letter === "new-game") {
+      if (Number === "new-game") {
+        reset();
+        console.log(tim.textContent);
         get_new_game();
         return;
       }
 
-      updateGuessedWords(letter);
+      updateGuessedNumbers(Number);
     };
   }
 
