@@ -144,10 +144,12 @@ document.addEventListener("DOMContentLoaded", () => {
         set.add(new_sol);
         if (guessedCount==maxSol){
           if ( isDaily ) {
+            let solvedTime = tim.textContent;
             markChallengeCompleted(seed);
-            window.alert("Congratulations! You finished in " + tim.textContent +
+            window.alert("Congratulations! You finished in " + solvedTime +
                         "\nYou have finished " + getNumberOfCompletedDaily() +
                         " daily challenges!");
+            share(solvedTime);
           }
           else {
             window.alert("Congratulations! You finished in " + tim.textContent);
@@ -350,4 +352,20 @@ function markChallengeCompleted(challengeId) {
 function getNumberOfCompletedDaily() {
   const completedDailyChallenges = JSON.parse(localStorage.getItem('completedDailyChallenges')) || [];
   return completedDailyChallenges.length;
+}
+
+////////////////////////////////////////
+function share(time) {
+  if (navigator.share) {
+      navigator.share({
+          title: 'Numbrles',
+          text: 'I solved today\'s numbrles in ' + time + '.\nCan you beat me?',
+          url: 'https://numbrles.com'
+      })
+      .then(() => console.log('Successfully shared'))
+      .catch((error) => console.error('Error sharing:', error));
+  } else {
+      // Fallback for browsers that do not support the Web Share API
+      alert('Web Share API not supported in this browser.');
+  }
 }
