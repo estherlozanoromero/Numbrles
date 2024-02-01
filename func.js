@@ -97,7 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleSubmitNumber() {
-    guessedCount=maxSol-1;
     const currentNumberArr = getCurrentNumberArr();
 
     result = parseInt(currentNumberArr[0]);
