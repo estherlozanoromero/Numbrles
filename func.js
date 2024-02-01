@@ -6,8 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let maxSol;
   let Number;
   let guessedCount = 0;
+  let isDaily;
+  let seed;
   const set = new Set();
-  get_new_game();
+  get_new_game(true);
 
   //TIMER
 
@@ -95,6 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleSubmitNumber() {
+    guessedCount=maxSol-1;
     const currentNumberArr = getCurrentNumberArr();
 
     result = parseInt(currentNumberArr[0]);
@@ -141,7 +144,15 @@ document.addEventListener("DOMContentLoaded", () => {
         ++guessedCount;
         set.add(new_sol);
         if (guessedCount==maxSol){
-          window.alert("Congratulations! You finished in " + tim.textContent);
+          if ( isDaily ) {
+            markChallengeCompleted(seed);
+            window.alert("Congratulations! You finished in " + tim.textContent +
+                        "\nYou have finished " + getNumberOfCompletedDaily() +
+                        " daily challenges!");
+          }
+          else {
+            window.alert("Congratulations! You finished in " + tim.textContent);
+          }
           reset();
           get_new_game();
         }
@@ -173,7 +184,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  function get_new_game() {
+  function get_new_game(daily = false) {
+    isDaily = daily;
+    if (daily) {
+      // Get the current date
+      const currentDate = new Date();
+
+      // Extract date components
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth() + 1; // Months are zero-based
+      const day = currentDate.getDate();
+      // Create a seed based on date components
+      seed = year * 10000 + month * 100 + day * 1;
+    }
+    else seed = Math.floor(Math.random()*100);
+    console.log("Generated Seed:", seed);
+    const rand = createSeededRandomGenerator(seed);
+
     timer();
     clear_solution();
     po = 1;
@@ -181,11 +208,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let nums= [0];
 
     for (let i = 1; i < 10; ++i) {
-        nums[i]=Math.floor(Math.random()*25) + 1;
+        nums[i]=Math.floor(rand()*25) + 1;
         let j = 0;
         while (j < i) {
             if (nums[j]==nums[i])  {
-                nums[i]=Math.floor(Math.random()*25) + 1;
+                nums[i]=Math.floor(rand()*25) + 1;
                 j = 0;
             } else ++j;
         }
@@ -232,19 +259,18 @@ document.addEventListener("DOMContentLoaded", () => {
       a.textContent = nums[i];
       a.setAttribute("data-key", nums[i]);
     }
-      let r = document.getElementById("goal");
-      num = max_p;
-      maxSol = max;
-      guessedCount = 0;
-      r.textContent = num;
-      let score = document.getElementById("score");
-      score.textContent = guessedCount+"/"+maxSol;
-      set.clear();
-      for(let i = 0; i < 5; i++) {
-        handleDeleteNumber();
+    let r = document.getElementById("goal");
+    num = max_p;
+    maxSol = max;
+    guessedCount = 0;
+    r.textContent = num;
+    let score = document.getElementById("score");
+    score.textContent = guessedCount+"/"+maxSol;
+    set.clear();
+    for(let i = 0; i < 5; i++) {
+      handleDeleteNumber();
 
-      }
-      
+    } 
   }
 
   function createSquares() {
@@ -290,6 +316,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      if (Number === "daily") {
+        reset();
+        console.log(tim.textContent);
+        get_new_game(true);
+        return;
+      }
+
       updateGuessedNumbers(Number);
     };
   }
@@ -298,3 +331,24 @@ document.addEventListener("DOMContentLoaded", () => {
   he.onclick = ({ target }) => window.alert("Combine the numbers with adds and substracts in order to achieve the goal. Any possibility is allowed: you can use one, two or three numbers.  Explore mental calculus and find all the permutations!");
   
 });
+
+
+/////////////////////////////////////////
+// FUNCTIONS RELATED TO LOCAL STORAGE ///
+/////////////////////////////////////////
+
+// Save completed challenges to localStorage
+function markChallengeCompleted(challengeId) {
+  const completedDailyChallenges = JSON.parse(localStorage.getItem('completedDailyChallenges')) || [];
+  
+  if (!completedDailyChallenges.includes(challengeId)) {
+      completedDailyChallenges.push(challengeId);
+      localStorage.setItem('completedDailyChallenges', JSON.stringify(completedDailyChallenges));
+  }
+}
+
+// Check if a challenge is completed
+function getNumberOfCompletedDaily() {
+  const completedDailyChallenges = JSON.parse(localStorage.getItem('completedDailyChallenges')) || [];
+  return completedDailyChallenges.length;
+}
