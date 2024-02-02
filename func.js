@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isDaily;
   let seed;
   const set = new Set();
-  get_new_game(true);
+  daily();
 
   //TIMER
 
@@ -146,28 +146,18 @@ document.addEventListener("DOMContentLoaded", () => {
           if ( isDaily ) {
             let solvedTime = tim.textContent;
             markChallengeCompleted(seed);
-            window.alert("Congratulations! You finished in " + solvedTime +
-                        "\nYou have finished " + getNumberOfCompletedDaily() +
-                        " daily challenges!");
+            togglePopup("Congratulations!", "You finished in " + solvedTime +
+            "\nYou have finished " + getNumberOfCompletedDaily() +
+            " daily challenges!");
             share(solvedTime);
           }
           else {
-            window.alert("Congratulations! You finished in " + tim.textContent);
+            togglePopup("Congratulations!", "You finished in " + tim.textContent);
           }
           reset();
           get_new_game();
         }
-        let score = document.getElementById("score");
-        score.textContent = guessedCount+"/"+maxSol;
-        let sol = document.getElementById("solutions-found");
-        if (po == 1){
-          po = 0;
-        }
-        else {
-          sol.textContent += " · ";
-        }
-        sol.textContent += currentNumberArr.join('');
-        
+        add_solution(currentNumberArr);
       }
 
     } else {
@@ -176,6 +166,19 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let i = 1; i < 6; ++i) {
       handleDeleteNumber();
     }
+  }
+
+  function add_solution(solution) {
+    let score = document.getElementById("score");
+    score.textContent = guessedCount+"/"+maxSol;
+    let sol = document.getElementById("solutions-found");
+    if (po == 1){
+      po = 0;
+    }
+    else {
+      sol.textContent += " · ";
+    }
+    sol.textContent += solution.join('');
   }
 
   function clear_solution() {
@@ -295,6 +298,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function daily() {
+    get_new_game(true);
+  }
+
   for (let i = 0; i < keys_1.length; i++) {
     keys_1[i].onclick = ({ target }) => {
 
@@ -320,7 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (Number === "daily") {
         reset();
         console.log(tim.textContent);
-        get_new_game(true);
+        daily();
         return;
       }
 
@@ -367,5 +374,19 @@ function share(time) {
   } else {
       // Fallback for browsers that do not support the Web Share API
       alert('Web Share API not supported in this browser.');
+  }
+}
+
+// Function to toggle the popup and overlay with dynamic text
+function togglePopup(title = "", content = "") {
+  var popup = document.getElementById('popup-container');
+  
+  // Toggle the display
+  popup.style.display = (popup.style.display === 'block') ? 'none' : 'block';
+
+  // Example: Change the text dynamically
+  if (popup.style.display === 'block' && title != "" && content != "") {
+    document.getElementById('popup-title').innerText = title;
+    document.getElementById('popup-content').innerText = content;
   }
 }
