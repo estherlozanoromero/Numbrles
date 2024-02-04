@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let guessedCount = 0;
   let isDaily;
   let seed;
-  const set = new Set();
+  const solutions = new Set();
   daily();
 
   //TIMER
@@ -111,37 +111,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    let vec = new Array(3).fill(0);
     if (result === num) {
-      vec[0] = parseInt(currentNumberArr[0]);
-      let j = 1;
-      for (let i = 1; i < currentNumberArr.length; ++i) {
-        if (currentNumberArr[i] == "+") {
-          vec[j] = parseInt(currentNumberArr[i+1]);
-          ++i;
-        }
-        else if (currentNumberArr[i] == "-") {
-          vec[j] = -parseInt(currentNumberArr[i+1]);
-          ++i;
-        }
-        ++j;
-      }
+      new_sol = getTokenOfSolution(currentNumberArr);
 
-      vec.sort();
-      let new_sol = [];
-      new_sol += vec[0].toString();
-      for (let i = 1; i < vec.length; ++i) {
-        if (i < vec.length && vec[i] != 0) {
-          if(vec[i] > 0) new_sol += "+" + vec[i].toString();
-          else new_sol += "-" + (-vec[i]).toString();
-        }
-      }
-
-
-      if (set.has(new_sol)) window.alert("This solution already exists!");
+      if (solutions.has(new_sol)) window.alert("This solution already exists!");
       else {
         ++guessedCount;
-        set.add(new_sol);
+        solutions.add(new_sol);
+        saveDaily(solutions);
         if (guessedCount==maxSol){
           if ( isDaily ) {
             let solvedTime = tim.textContent;
@@ -190,19 +167,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function get_new_game(daily = false) {
     isDaily = daily;
-    if (daily) {
-      // Get the current date
-      const currentDate = new Date();
-
-      // Extract date components
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1; // Months are zero-based
-      const day = currentDate.getDate();
-      // Create a seed based on date components
-      seed = year * 10000 + month * 100 + day * 1;
-    }
+    if (daily) seed = getDailySeed();
     else seed = Math.floor(Math.random()*100);
-    console.log("Generated Seed:", seed);
     const rand = createSeededRandomGenerator(seed);
 
     timer();
@@ -270,11 +236,25 @@ document.addEventListener("DOMContentLoaded", () => {
     r.textContent = num;
     let score = document.getElementById("score");
     score.textContent = guessedCount+"/"+maxSol;
-    set.clear();
+    solutions.clear();
     for(let i = 0; i < 5; i++) {
       handleDeleteNumber();
-
     } 
+  }
+
+  function getDailySeed() {
+	// Get the current date
+	const currentDate = new Date();
+
+	// Extract date components
+	const year = currentDate.getFullYear();
+	const month = currentDate.getMonth() + 1; // Months are zero-based
+	const day = currentDate.getDate();
+
+	// Create a seed based on date components
+	seed = year * 10000 + month * 100 + day * 1;
+
+	return seed;
   }
 
   function createSquares() {
@@ -300,6 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function daily() {
     get_new_game(true);
+    loadDaily(solutions);
   }
 
   for (let i = 0; i < keys_1.length; i++) {
@@ -319,14 +300,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (Number === "new-game") {
         reset();
-        console.log(tim.textContent);
         get_new_game();
         return;
       }
 
       if (Number === "daily") {
         reset();
-        console.log(tim.textContent);
         daily();
         return;
       }
@@ -338,28 +317,86 @@ document.addEventListener("DOMContentLoaded", () => {
   let he = document.getElementById("hel");
   he.onclick = ({ target }) => window.alert("Combine the numbers with adds and substracts in order to achieve the goal. Any possibility is allowed: you can use one, two or three numbers.  Explore mental calculus and find all the permutations!");
   
-});
-
 
 /////////////////////////////////////////
 // FUNCTIONS RELATED TO LOCAL STORAGE ///
 /////////////////////////////////////////
 
-// Save completed challenges to localStorage
-function markChallengeCompleted(challengeId) {
-  const completedDailyChallenges = JSON.parse(localStorage.getItem('completedDailyChallenges')) || [];
-  
-  if (!completedDailyChallenges.includes(challengeId)) {
-      completedDailyChallenges.push(challengeId);
-      localStorage.setItem('completedDailyChallenges', JSON.stringify(completedDailyChallenges));
+  // Save completed challenges to localStorage
+  function markChallengeCompleted(challengeId) {
+    const completedDailyChallenges = JSON.parse(localStorage.getItem('completedDailyChallenges')) || [];
+    
+    if (!completedDailyChallenges.includes(challengeId)) {
+        completedDailyChallenges.push(challengeId);
+        localStorage.setItem('completedDailyChallenges', JSON.stringify(completedDailyChallenges));
+    }
   }
-}
 
-// Check if a challenge is completed
-function getNumberOfCompletedDaily() {
-  const completedDailyChallenges = JSON.parse(localStorage.getItem('completedDailyChallenges')) || [];
-  return completedDailyChallenges.length;
-}
+  // Check if a challenge is completed
+  function getNumberOfCompletedDaily() {
+    const completedDailyChallenges = JSON.parse(localStorage.getItem('completedDailyChallenges')) || [];
+    return completedDailyChallenges.length;
+  }
+
+  function saveDaily(solutions) {
+	localStorage.setItem('dailySeed', getDailySeed());
+
+    // Convert set to an array before storing
+    const arrayFromSet = Array.from(solutions);
+
+    // Serialize the array to a JSON string
+    const jsonString = JSON.stringify(arrayFromSet);
+    
+    localStorage.setItem('dailyChallenge', JSON.stringify(jsonString));
+  }
+
+  function loadDaily(solutions) {
+	if (localStorage.getItem('dailySeed') != getDailySeed()) return;
+
+    // Retrieve the JSON string from localStorage
+    const jsonString = localStorage.getItem('dailyChallenge').split(',');
+
+    // Process each string in the array to create the desired array of arrays
+    const arrayOfArrays = jsonString.map(str => str.match(/[0-9]+|[+\-*/]/g) || []);
+
+    for (let i = 0; i < arrayOfArrays.length; ++i) {
+      while(arrayOfArrays[i][0] == '0') { arrayOfArrays[i].shift(); arrayOfArrays[i].shift(); }
+      ++guessedCount;
+      add_solution(arrayOfArrays[i]);
+      new_sol = getTokenOfSolution(arrayOfArrays[i]);
+      solutions.add(new_sol);
+    }
+  }
+
+  function getTokenOfSolution(sol) {
+    let vec = new Array(3).fill(0);
+    vec[0] = parseInt(sol[0]);
+    let j = 1;
+    for (let i = 1; i < sol.length; ++i) {
+      if (sol[i] == "+") {
+        vec[j] = parseInt(sol[i+1]);
+        ++i;
+      }
+      else if (sol[i] == "-") {
+        vec[j] = -parseInt(sol[i+1]);
+        ++i;
+      }
+      ++j;
+    }
+
+    vec.sort();
+    let new_sol = [];
+    new_sol += vec[0].toString();
+    for (let i = 1; i < vec.length; ++i) {
+      if (i < vec.length && vec[i] != 0) {
+        if(vec[i] > 0) new_sol += "+" + vec[i].toString();
+        else new_sol += "-" + (-vec[i]).toString();
+      }
+    }
+    return new_sol;
+  }
+
+});
 
 ////////////////////////////////////////
 function share(time) {
